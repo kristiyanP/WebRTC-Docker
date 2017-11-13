@@ -88,31 +88,23 @@ pull_webrtc() {
     create_directory_if_not_found "$WEBRTC_ROOT"
     cd "$WEBRTC_ROOT"
 
-    # Setup gclient config
-    echo Configuring gclient for Android build
-    if [ -z $USER_WEBRTC_URL ]
-    then
-        echo "User has not specified a different webrtc url. Using default"
-        gclient config --name=src "$DEFAULT_WEBRTC_URL"
-    else
-        echo "User has specified their own webrtc url $USER_WEBRTC_URL"
-        gclient config --name=src "$USER_WEBRTC_URL"
-    fi
-
-    # Ensure our target os is correct building android
-	echo 'target_os = ["ios", "mac", "linux", "android", "unix"]' >> .gclient
-    gclient runhooks
-
+    # Fetch 
+    yes | fetch --nohooks webrtc_android
+ 
     # Get latest webrtc source
 	echo Pull down the latest from the webrtc repo
 	echo this can take a while
+
+
 	if [ -z $1 ]
     then
         echo "gclient sync with newest"
-        gclient sync
+        yes | gclient sync 
     else
         echo "gclient sync with $1"
-        gclient sync -r $1
+        cd /webrtc/src/ 
+        git checkout -b $1 branch-heads/$1
+        yes | gclient sync --force
     fi
 
     # Navigate back
@@ -264,9 +256,9 @@ execute_build() {
         create_directory_if_not_found "$ARCH_JNI"
 
         # Copy the jars
-        cp -p "$SOURCE_DIR/lib.java/sdk/android/libjingle_peerconnection_java.jar" "$TARGET_DIR/libs/libjingle_peerconnection.jar"
-        cp -p "$SOURCE_DIR/lib.java/rtc_base/base_java.jar" "$TARGET_DIR/libs/base_java.jar"
-        cp -p "$SOURCE_DIR/lib.java/modules/audio_device/audio_device_java.jar" "$TARGET_DIR/libs/audio_device_java.jar"
+        cp -p "$SOURCE_DIR/lib.java/webrtc/sdk/android/libjingle_peerconnection_java.jar" "$TARGET_DIR/libs/libjingle_peerconnection.jar"
+        cp -p "$SOURCE_DIR/lib.java/webrtc/rtc_base/base_java.jar" "$TARGET_DIR/libs/base_java.jar"
+        cp -p "$SOURCE_DIR/lib.java/webrtc/modules/audio_device/audio_device_java.jar" "$TARGET_DIR/libs/audio_device_java.jar"
 
         # Strip the build only if its release
         if [ "$WEBRTC_DEBUG" = "true" ] ;
