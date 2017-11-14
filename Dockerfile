@@ -28,5 +28,3 @@ COPY build.sh /
 
 RUN echo 'source /build.sh' >> /root/.bashrc
 RUN echo 'export PATH=$PATH:$DEPOT_TOOLS' >> /root/.bashrc
-# get latest webrtc
-RUN get_webrtc
